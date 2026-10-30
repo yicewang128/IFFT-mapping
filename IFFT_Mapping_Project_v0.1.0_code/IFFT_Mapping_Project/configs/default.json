@@ -1,0 +1,7 @@
+{
+  "sigma_px": 5.0,
+  "display_window": null,
+  "threshold": {"mode": "otsu", "bins": 4096},
+  "tem_opacity": 1.0,
+  "tem_window": null
+}
