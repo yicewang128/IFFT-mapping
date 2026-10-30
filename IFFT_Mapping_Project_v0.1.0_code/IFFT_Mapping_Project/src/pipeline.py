@@ -1,4 +1,4 @@
-"""Version 0.1.0: signed IFFT display and a separate abs/Gaussian selection.
+"""Version 0.2.0: configurable signed IFFT display and separate abs/Gaussian selection.
 
 No RMS, gamma adjustment, sharpening, morphology, resizing, or registration.
 See docs/METHODS_zh.md for the meaning and limitations of each operation.
@@ -18,7 +18,7 @@ import tifffile
 from PIL import Image
 from scipy.ndimage import gaussian_filter
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 
 def sha256(path):
@@ -72,6 +72,43 @@ def linear_signed_display(a, bounds=None):
     return np.clip((a - lo) / (hi - lo), 0, 1), [lo, hi], clipped
 
 
+def prepare_ifft_display(a, cfg):
+    """Choose one global IFFT window; explicit bounds take precedence over percentiles.
+
+    Scalar gamma is fixed at 1. This does not affect TEM display or the mask.
+    Absent percentile settings preserve the v0.1.0 full-range behavior.
+    """
+    bounds = cfg.get("display_window")
+    percentiles = cfg.get("display_percentiles")
+    if bounds is None and percentiles is not None:
+        q = np.asarray(percentiles, dtype=np.float64)
+        if q.shape != (2,) or not np.isfinite(q).all() or not 0 <= q[0] < q[1] <= 100:
+            raise ValueError("display_percentiles must contain two increasing values in [0,100].")
+        bounds = np.percentile(np.asarray(a, dtype=np.float64), q).tolist()
+    return linear_signed_display(a, bounds)
+
+
+def color_settings(cfg=None):
+    """Validate and resolve the display LUT; no spatial filtering is performed."""
+    cfg = cfg or {}
+    mode = cfg.get("color_map", "green")
+    if mode not in ("green", "green_white"):
+        raise ValueError("color_map must be green or green_white")
+    settings = {"color_map": mode, "scalar_gamma": 1}
+    if mode == "green_white":
+        start = float(cfg.get("white_start", 0.55))
+        maximum = float(cfg.get("white_max", 230))
+        if not np.isfinite([start, maximum]).all() or not 0 <= start < 1 or not 0 <= maximum <= 255:
+            raise ValueError("white_start must be in [0,1); white_max must be in [0,255].")
+        settings.update(white_start=start, white_max=maximum)
+    return settings
+
+
+def display_title(cfg=None):
+    mode = color_settings(cfg)["color_map"]
+    return "Green to near-white LUT" if mode == "green_white" else "Green LUT"
+
+
 def amplitude_map(a, sigma=5.0):
     """G_sigma * abs(original signed IFFT), NOT RMS and NOT abs(normalized green)."""
     if not np.isfinite(sigma) or sigma <= 0:
@@ -115,10 +152,17 @@ def choose_threshold(smooth, cfg):
     return t
 
 
-def render_layers(linear, mask):
+def render_layers(linear, mask, cfg=None):
     """Binary alpha: inside RGB is identical to step 1, including its darkest pixels."""
     rgb = np.zeros((*linear.shape, 3), dtype=np.uint8)
     rgb[..., 1] = np.rint(255 * linear).astype(np.uint8)
+    settings = color_settings(cfg)
+    if settings["color_map"] == "green_white":
+        start = settings["white_start"]
+        highlight = np.clip((linear - start) / (1 - start), 0, 1)
+        rb = np.rint(settings["white_max"] * highlight).astype(np.uint8)
+        rgb[..., 0] = rb
+        rgb[..., 2] = rb
     rgba = np.dstack((rgb, mask.astype(np.uint8) * 255))
     black = np.where(mask[..., None], rgb, 0).astype(np.uint8)
     return rgb, rgba, black
@@ -167,7 +211,7 @@ def write_tiff(path, a, calibration=None):
     tifffile.imwrite(path, a, **kw)
 
 
-def make_preview(out, raw, linear, smooth, mask, rgb, rgba, black, threshold, sigma):
+def make_preview(out, raw, linear, smooth, mask, rgb, rgba, black, threshold, sigma, cfg=None):
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvasAgg
     yy, xx = np.indices(raw.shape)
@@ -176,7 +220,7 @@ def make_preview(out, raw, linear, smooth, mask, rgb, rgba, black, threshold, si
     transparent_view = composite(checker, rgb, mask)
     fig = Figure(figsize=(12, 8.7), dpi=160); FigureCanvasAgg(fig)
     axs = fig.subplots(2, 3)
-    items = [(raw, "Original signed IFFT", "gray"), (rgb, "1. Linear green / gamma = 1", None),
+    items = [(raw, "Original signed IFFT", "gray"), (rgb, f"1. {display_title(cfg)} / scalar gamma = 1", None),
              (smooth, f"2. Gaussian(abs(IFFT)), sigma = {sigma:g} px", "magma"),
              (mask, f"3. Selection mask / T = {threshold:.3f}", "gray"),
              (transparent_view, "4. Selected green / checkerboard preview", None),
@@ -210,11 +254,12 @@ def run_pipeline(input_path, output_dir, cfg, tem_path=None, make_figures=True):
     a, meta = load_image(input_path)
     if a.ndim != 2 or not np.issubdtype(a.dtype, np.number) or np.iscomplexobj(a):
         raise ValueError("Input must be a single real-valued 2D grayscale IFFT, not RGB or complex data.")
-    linear, bounds, clipped = linear_signed_display(a, cfg.get("display_window"))
+    linear, bounds, clipped = prepare_ifft_display(a, cfg)
+    colors = color_settings(cfg)
     absolute, smooth = amplitude_map(a, cfg.get("sigma_px", 5))
     threshold = choose_threshold(smooth, cfg.get("threshold", {}))
     mask = smooth >= threshold
-    rgb, rgba, black = render_layers(linear, mask)
+    rgb, rgba, black = render_layers(linear, mask, cfg)
     # Validate TEM before writing so invalid input does not create a partial run.
     tem_data = None
     if tem_path:
@@ -250,11 +295,15 @@ def run_pipeline(input_path, output_dir, cfg, tem_path=None, make_figures=True):
         write_tiff(output_dir / "08_green_on_TEM_rgb.tif", merged, cal)
         Image.fromarray(merged).save(output_dir / "08_green_on_TEM.png")
     effective = dict(cfg)
+    effective.update({k: v for k, v in colors.items() if k != "scalar_gamma"})
     effective.update(display_window=bounds, threshold={"mode": "manual", "value": threshold})
     (output_dir / "effective_config.json").write_text(json.dumps(effective, indent=2),encoding="utf-8")
     validation = {
         "source_file_unchanged": sha256(input_path) == meta["sha256"],
         "signed_display_clipped_fraction": clipped,
+        "signed_display_clipped_low_fraction": float(np.mean(a < bounds[0])),
+        "signed_display_clipped_high_fraction": float(np.mean(a > bounds[1])),
+        "selected_display_clipped_fraction": float(np.mean((a[mask] < bounds[0]) | (a[mask] > bounds[1]))) if mask.any() else None,
         "selected_RGB_equals_step1": bool(np.array_equal(rgba[mask,:3], rgb[mask])),
         "alpha_is_binary": bool(np.all(np.isin(rgba[...,3], [0,255]))),
         "outside_alpha_is_zero": bool(np.all(rgba[~mask,3] == 0)),
@@ -274,7 +323,14 @@ def run_pipeline(input_path, output_dir, cfg, tem_path=None, make_figures=True):
         "algorithm": {"mapping": "gaussian_filter(abs(original_IFFT))", "sigma_unit": "pixels",
                       "gaussian_mode": "reflect", "gaussian_truncate": 4.0, "comparator": ">=",
                       "gamma": 1, "RMS": False, "morphology": False, "registration": False,
-                      "alpha": "binary: selected=255, outside=0", "color_rgb": [0,255,0],
+                      "alpha": "binary: selected=255, outside=0",
+                      "display": {**colors,
+                                  "window": bounds,
+                                  "window_source": "explicit" if cfg.get("display_window") is not None else ("global percentiles" if cfg.get("display_percentiles") is not None else "full min/max"),
+                                  "scalar_formula": "L=clip((F-low)/(high-low),0,1)",
+                                  "lut_formula": "G=round(255*L); R=B=round(white_max*clip((L-white_start)/(1-white_start),0,1))" if colors["color_map"] == "green_white" else "G=round(255*L); R=B=0",
+                                  "high_endpoint_rgb": [int(np.rint(colors.get("white_max",0))),255,int(np.rint(colors.get("white_max",0)))],
+                                  "intensity_note": "Window clipping, piecewise color LUT and RGB8 quantization affect rendered intensities; measure original signed IFFT."},
                       "numeric_precision": "float64 calculation, float32 intermediate TIFF exports",
                       "status": "exploratory lattice-signal selection, not a validated grain boundary"},
         "validation": validation,
@@ -283,7 +339,7 @@ def run_pipeline(input_path, output_dir, cfg, tem_path=None, make_figures=True):
         "TEM": None if tem_data is None else {"input":tm,"display":disp,"opacity":cfg.get("tem_opacity",1.0)},
     }
     if make_figures:
-        make_preview(output_dir,a,linear,smooth,mask,rgb,rgba,black,threshold,cfg.get("sigma_px",5))
+        make_preview(output_dir,a,linear,smooth,mask,rgb,rgba,black,threshold,cfg.get("sigma_px",5),cfg)
     manifest["output_sha256"] = {p.name:sha256(p) for p in sorted(output_dir.iterdir()) if p.is_file()}
     (output_dir / "run_manifest.json").write_text(json.dumps(manifest, indent=2,ensure_ascii=False),encoding="utf-8")
     return manifest

@@ -1,6 +1,10 @@
 {
   "sigma_px": 5.0,
   "display_window": null,
+  "display_percentiles": [0.5, 99.5],
+  "color_map": "green_white",
+  "white_start": 0.55,
+  "white_max": 230,
   "threshold": {"mode": "otsu", "bins": 4096},
   "tem_opacity": 1.0,
   "tem_window": null

@@ -10,9 +10,12 @@ if (!File.exists(dir+"04_selection_mask_uint8.tif")) exit("No selection mask in 
 open(dir+"00_signed_ifft_float32.tif");
 rename("IFFT_source_copy");
 open(dir+"01_linear_green_channel_float32.tif");
-rename("Signed_linear_green_float32");
+rename("Normalized_scalar_Green_LUT_reference");
 setMinAndMax(0,1);
 run("Green"); // LUT changes display, not the 32-bit values.
+// The scalar Green LUT is not the green-white color map. Open Python's exact RGB.
+open(dir+"01_linear_green_rgb.tif");
+rename("Step1_exact_color_RGB");
 open(dir+"03_abs_gaussian_float32.tif");
 rename("Abs_Gaussian_mapping_float32");
 open(dir+"06_selected_on_black_rgb.tif");

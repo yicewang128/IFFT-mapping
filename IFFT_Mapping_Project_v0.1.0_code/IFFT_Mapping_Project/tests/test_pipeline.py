@@ -8,7 +8,8 @@ from scipy.ndimage import gaussian_filter
 from PIL import Image
 import tifffile
 from pipeline import (amplitude_map, linear_signed_display, render_layers, composite,
-                      run_pipeline, otsu_threshold, tem_display)
+                      run_pipeline, otsu_threshold, tem_display, prepare_ifft_display,
+                      color_settings)
 
 
 def test_signed_linear_mapping_preserves_nonzero_frequency_and_distinguishes_sign():
@@ -68,3 +69,52 @@ def test_run_keeps_input_bytes_calibration_and_png_alpha(tmp_path):
         assert tf.imagej_metadata["unit"]=="nm"
     assert m["input"]["calibration"]["pixel_width"]==.05
     with pytest.raises(FileExistsError):run_pipeline(p,out,{})
+
+
+def test_display_window_precedence_and_legacy_fallback():
+    a=np.linspace(-20,80,101).reshape(1,-1)
+    L,bounds,clipped=prepare_ifft_display(a,{"display_percentiles":[10,90]})
+    np.testing.assert_allclose(bounds,[-10,70])
+    assert L[0,0]==0 and L[0,-1]==1 and clipped==20/101
+    manual={"display_window":[-20,80],"display_percentiles":[10,90]}
+    np.testing.assert_array_equal(prepare_ifft_display(a,manual)[0],linear_signed_display(a)[0])
+    np.testing.assert_array_equal(prepare_ifft_display(a,{})[0],linear_signed_display(a)[0])
+    for bad in ([99,1],[-1,99],[0,101],[1], [0,float('nan')]):
+        with pytest.raises(ValueError):prepare_ifft_display(a,{"display_percentiles":bad})
+
+
+def test_green_white_lut_endpoints_and_binary_alpha():
+    L=np.array([[0,.55,.775,1]])
+    mask=np.array([[True,False,True,True]])
+    rgb,rgba,black=render_layers(L,mask,{"color_map":"green_white"})
+    np.testing.assert_array_equal(rgb[0,0],[0,0,0])
+    np.testing.assert_array_equal(rgb[0,1],[0,140,0])
+    np.testing.assert_array_equal(rgb[0,2],[115,198,115])
+    np.testing.assert_array_equal(rgb[0,3],[230,255,230])
+    np.testing.assert_array_equal(rgba[...,3],mask.astype(np.uint8)*255)
+    assert np.all(black[~mask]==0) and rgba[0,0,3]==255
+    for bad in ({"color_map":"invalid"}, {"color_map":"green_white","white_start":1},
+                {"color_map":"green_white","white_max":float('nan')}):
+        with pytest.raises(ValueError):color_settings(bad)
+
+
+def test_new_display_keeps_selection_and_roundtrips_effective_config(tmp_path):
+    import json
+    from copy import deepcopy
+    x=np.arange(64)
+    f=(np.cos(2*np.pi*x[None,:]/8)*np.linspace(.1,4,64)[:,None]).astype(np.float32)
+    p=tmp_path/'input.tif';tifffile.imwrite(p,f)
+    base={"sigma_px":5,"threshold":{"mode":"otsu","bins":4096}}
+    cfg={**base,"display_percentiles":[.5,99.5],"color_map":"green_white","white_start":.55,"white_max":230}
+    original_cfg=deepcopy(cfg)
+    run_pipeline(p,tmp_path/'legacy',base,make_figures=False)
+    record=run_pipeline(p,tmp_path/'new',cfg,make_figures=False)
+    assert cfg==original_cfg
+    for name in ('02_abs_ifft_float32.tif','03_abs_gaussian_float32.tif','04_selection_mask_uint8.tif','05_alpha_uint8.tif'):
+        np.testing.assert_array_equal(tifffile.imread(tmp_path/'new'/name),tifffile.imread(tmp_path/'legacy'/name))
+    effective=json.loads((tmp_path/'new/effective_config.json').read_text())
+    run_pipeline(p,tmp_path/'replay',effective,make_figures=False)
+    np.testing.assert_array_equal(np.array(Image.open(tmp_path/'new/05_selected_green_transparent.png')),
+                                  np.array(Image.open(tmp_path/'replay/05_selected_green_transparent.png')))
+    assert record['algorithm']['display']['high_endpoint_rgb']==[230,255,230]
+    assert record['validation']['signed_display_clipped_fraction']>0

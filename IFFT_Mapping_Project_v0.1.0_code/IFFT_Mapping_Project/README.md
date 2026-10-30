@@ -1,4 +1,4 @@
-# IFFT Mapping Project — v0.1.0
+# IFFT Mapping Project — v0.2.0
 
 本项目将 **signed IFFT 晶格显示** 与 **晶格信号区域选择** 分开。
 Python 是计算的唯一基准；TIFF 和 mask 用于 ImageJ / DigitalMicrograph 交换。
@@ -6,7 +6,7 @@ Python 是计算的唯一基准；TIFF 和 mask 用于 ImageJ / DigitalMicrograp
 
 ## 本版本的流程
 
-1. 原始 IFFT 的完整 min–max 线性映射到黑→绿色；gamma=1。
+1. 原始 signed IFFT 用全图第0.5/99.5百分位确定显示范围；标量gamma=1，再用黑→绿→近白色LUT显示（D模式）。
 2. 对原始 signed IFFT（不是第一步已归一化的绿色通道）取绝对值。
 3. 对绝对值进行 Gaussian smoothing，sigma=5 **原始像素**。
 4. 给平滑后的幅度指标设阈值，产生二值区域 mask。
@@ -16,6 +16,26 @@ Python 是计算的唯一基准；TIFF 和 mask 用于 ImageJ / DigitalMicrograp
 每一步为什么这样做、数学定义及限制见 [docs/METHODS_zh.md](docs/METHODS_zh.md)。
 跨软件操作见 [docs/ImageJ_DigitalMicrograph_zh.md](docs/ImageJ_DigitalMicrograph_zh.md)。
 示例实测参数见 [docs/RUN_001_zh.md](docs/RUN_001_zh.md)。
+v0.2.0原始IFFT复跑及D图核对见 [docs/RUN_002_zh.md](docs/RUN_002_zh.md)。
+
+## D显示与原版A的切换
+
+默认 `configs/default.json` 使用D：`display_percentiles=[0.5,99.5]`、
+`color_map="green_white"`、`white_start=0.55`、`white_max=230`。
+最高颜色是RGB(230,255,230)。标量gamma=1不等于最终颜色亮度完全线性：
+显示范围外的灰度会截断，LUT分段变化，RGB8还有量化。原始数值不改写。
+这提高条纹可见度，不提高空间分辨率。Gaussian、阈值及二值alpha不受显示参数影响。
+
+恢复原版A的完整min/max纯绿色显示：
+
+```powershell
+python src/review_mask.py --config configs/legacy_green.json
+```
+
+明确设置 `display_window=[low,high]` 时优先于百分位。复现某次运行使用其
+`effective_config.json`；比较同一实验系列可固定同一显示窗口，避免逐图自动窗口影响亮度比较。
+项目仍在原来的 `IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project` 目录，
+为保持已有路径可用未改目录名；实际程序版本以 `src/pipeline.py` 为准。
 
 ## 安装与运行（Windows）
 
@@ -70,7 +90,7 @@ python src/pipeline.py --input data/input_ifft.tif --output runs/with_float_tem 
 **100、1800 仅是命令格式示例，不是建议的 TEM 显示范围。**
 原始 TEM 文件从不被改写；合成图必然是新的 RGB 显示图。掩膜外与所记录的 TEM 显示图逐像素相同。
 opacity=1 时域内完全显示绿色 IFFT，0.6 时域内混合绿色和 TEM；域外仍只有 TEM。
-当前示例未提供 TEM，`runs/run_001` 因此没有生成 TEM 合成图。
+历史 `runs/run_001` 是不含TEM的v0.1.0运行；新运行请另建目录。
 
 **已审核过mask后，优先直接使用保存结果，避免再次计算区域：**
 
@@ -85,8 +105,8 @@ python src/overlay_saved_run.py --run runs/run_001 --tem data/original_tem.tif -
 | 文件 | 意义 |
 |---|---|
 | `00_signed_ifft_float32.tif` | 原始32-bit数值的无压缩副本；原文件另存于data |
-| `01_linear_green_channel_float32.tif` | 线性显示通道0–1，在ImageJ应用Green LUT即可 |
-| `01_linear_green_rgb.tif` / `.png` | 第一步绿色显示，RGB8，gamma=1 |
+| `01_linear_green_channel_float32.tif` | 显示窗口归一化并截断后的标量L，0–1；普通Green LUT不能复现D颜色 |
+| `01_linear_green_rgb.tif` / `.png` | 第一步实际配色，RGB8；D使用green-white LUT，标量gamma=1 |
 | `02_abs_ifft_float32.tif` | 原始signed IFFT的绝对值 |
 | `03_abs_gaussian_float32.tif` | Gaussian(abs(IFFT))，原始灰度单位 |
 | `04_selection_mask_uint8.tif` | 选中255，未选中0；不是原始图像强度 |
@@ -102,23 +122,21 @@ python src/overlay_saved_run.py --run runs/run_001 --tem data/original_tem.tif -
 | `run_manifest.json` | 输入/输出哈希、代码哈希、版本、采样、参数与检查记录 |
 
 所有分析 TIFF 和独立结果 PNG 保持输入宽高，未旋转/重采样。
+保留 `linear_green` 历史文件名以兼容导入脚本；实际配色和截断比例以manifest为准。
 TIFF 无图像压缩；PNG 的压缩无损，但 RGB 显示本身是8-bit量化。
-32-bit IFFT 与中间标量图保留用于定量分析。ZIP只是无损打包。
+原始32-bit signed IFFT用于晶格定量分析；显示标量L及RGB可能有截断，不代替原始数据。ZIP只是无损打包。
 
 ## 可复现与 GitHub
 
 建议用 Python 管理算法与参数，用 ImageJ/DM 查看 TIFF、检查 ROI。
 跨软件直接重新计算 Gaussian/阈值可能有边缘处理和浮点差异；直接导入本项目输出最一致。
 
-```powershell
-git init -b main
-git add .
-git commit -m "Add signed IFFT display and abs-Gaussian mapping v0.1.0"
-```
+已经用git clone获取仓库时，在仓库目录运行 `git pull --ff-only` 更新。
+若使用GitHub网页下载ZIP，请下载新版本并在新目录解压，保留旧运行记录。
 
 `.gitignore` 排除 `data/` 实验图片及 `runs/` 输出，代码和说明可以独立版本控制。
 **不要在 GitHub 网页一次性上传完整存档中的所有文件：网页上传不会自动遵守 .gitignore。**
-需要共享数据时另外决定访问权限及存储方式；此项目尚未发布到GitHub。
+代码仓库：https://github.com/yicewang128/IFFT-mapping 。实验图片与运行输出单独保留。
 每次改变参数都生成新run；确认后的阈值可保存成新的 `configs/*.json` 并提交。
 科研数据与代码的公开许可由项目所有者决定，本包未预先指定开源许可证。
 
@@ -129,7 +147,8 @@ python -m pip install pytest
 python -m pytest -q
 ```
 
-测试涵盖signed显示周期、abs/平滑顺序、非RMS、透明度、TEM域外像素、原文件不改写及TIFF标定。
+测试涵盖旧版仿射显示周期、abs/平滑顺序、非RMS、透明度、TEM域外像素、原文件不改写及TIFF标定，
+并验证D显示不会改变mask、effective配置可重放、交互预览与保存结果一致。
 这些是计算/文件正确性检查，不是晶界真实性的验证。
 交互预览的初始化及保存回调已做程序化检查。ImageJ导入宏尚未完成图形环境端到端验证；
 DigitalMicrograph未在本环境运行。不要将跨软件可读的数据格式误解为所有软件版本已通过测试。

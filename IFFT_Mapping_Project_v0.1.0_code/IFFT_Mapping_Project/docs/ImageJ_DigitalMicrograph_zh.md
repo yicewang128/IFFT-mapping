@@ -11,7 +11,7 @@ ImageJ宏适合图像窗口、LUT和ROI操作；DM脚本依赖DM环境，直接�
 
 1. Plugins > Macros > Run，选择 `imagej/Open_Processed_Run.ijm`。
 2. 选择 `runs/run_001` 或自己的新run目录。
-3. 宏打开signed原图、float32绿色LUT图、平滑幅度图、黑底图和mask。
+3. 宏打开signed原图、归一化float32的普通绿色LUT参考图、Python实际RGB配色图、平滑幅度图、黑底图和mask。
 4. mask转换成复合ROI，添加到ROI Manager。
 5. 可选打开已对齐TEM，添加绿色**轮廓Overlay**；不改TEM像素。
 
@@ -32,7 +32,8 @@ ImageJ1通常将RGB与overlay/ROI分开管理；PNG的alpha不一定在打开/�
 - 打开 `03_abs_gaussian_float32.tif`：查看区域检测指标。
 - 打开 `04_selection_mask_uint8.tif`：查看二值选择位置。
 - 打开 `06_selected_on_black_rgb.tif` 或可选的 `08_green_on_TEM_rgb.tif`：查看已经生成的RGB图。
-- `01_linear_green_channel_float32.tif` 范围0–1；若在DM手动上色，应设线性黑→绿及显示0–1。
+- `01_linear_green_channel_float32.tif` 范围0–1；普通黑→绿LUT只复现纯绿色模式，不能复现D近白色高亮。
+- D配色应直接打开 `01_linear_green_rgb.tif` 或黑底RGB；准确LUT公式见METHODS_zh.md。
 
 这些是单帧标准TIFF；输出写入ImageJ标定和Gatan像素尺寸标签，并在manifest记录标定。
 本环境未运行DigitalMicrograph，因此不能宣称已验证DM界面或所有版本的标定读取。
