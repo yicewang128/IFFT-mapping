@@ -12,12 +12,12 @@
     0
   ],
   "white_start": 0.55,
-  "white_max": 230,
+  "white_max": 0,
   "alpha": {
     "mode": "continuous",
     "low": {
-      "mode": "percentile",
-      "value": 10
+      "mode": "manual",
+      "value": 0.0
     },
     "full": {
       "mode": "max"

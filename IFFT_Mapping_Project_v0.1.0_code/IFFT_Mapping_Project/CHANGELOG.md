@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.1 — fixed hue and zero-low preview
+
+- All six presets use white_max=0; signed display window P0.5/P99.5 and gamma=1 remain unchanged.
+- Default T_low is literal zero, T_full remains max(Gaussian(abs(F))) for this preview.
+- Add reproducible six-layer/Sb-only additive black compositing with overflow and provenance records.
+- Historical configs and run records retain their original settings.
+
+
 ## 0.3.0 — continuous alpha and separate Sb reflection previews
 
 - Default alpha is a linear ramp from P10 to max of Gaussian(abs(real signed IFFT)); T_full remains configurable and provisional for K3SbS3.

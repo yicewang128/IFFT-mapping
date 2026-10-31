@@ -1,16 +1,28 @@
 {
   "sigma_px": 5.0,
   "display_window": null,
-  "display_percentiles": [0.5, 99.5],
-  "color_map": "green_white",
+  "display_percentiles": [
+    0.5,
+    99.5
+  ],
+  "color_map": "tint_white",
   "white_start": 0.55,
-  "white_max": 230,
+  "white_max": 0,
   "alpha": {
     "mode": "continuous",
-    "low": {"mode": "percentile", "value": 10.0},
-    "full": {"mode": "max"}
+    "low": {
+      "mode": "manual",
+      "value": 0.0
+    },
+    "full": {
+      "mode": "max"
+    }
   },
   "tem_opacity": 1.0,
-  "tem_window": null
+  "tem_window": null,
+  "color_rgb": [
+    0,
+    255,
+    0
+  ]
 }
-

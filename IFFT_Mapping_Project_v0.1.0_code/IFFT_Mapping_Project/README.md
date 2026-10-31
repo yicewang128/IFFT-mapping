@@ -1,13 +1,13 @@
-# IFFT Mapping Project — v0.3.0
+# IFFT Mapping Project — v0.3.1
 
 原始实数 signed IFFT 的彩色晶格显示，与 Gaussian(abs(IFFT)) 控制的透明度分开。
-当前默认改为 **连续 alpha**，暗端为平滑幅度图全图 **P10**，亮端暂用 **max**。
-**K3SbS3 的最终 T_full 尚未确定**；max 仅是可重现的预览设置。
+当前默认改为 **连续 alpha**，暗端为幅度数值 **0**（不是 P0 或 P10），亮端暂用 **max**。
+**各张图最终 T_low/T_full 尚待比较**；max 仅是可重现的预览设置。
 
 ## 当前流程
 
 1. 每张 signed IFFT 的 P0.5/P99.5 定义显示窗口，标量 gamma=1。
-2. 按亮度 L 使用黑→指定颜色→近白色 LUT，保留 D 的 white_start=0.55、white_max=230。
+2. 统一使用固定色调：RGB=round(L*color_rgb)，white_max=0；white_start=0.55 保留但不影响结果。
 3. 对原始 signed IFFT 取 abs，然后 Gaussian sigma=5 px（reflect，truncate=4）。
 4. 在同一张平滑幅度图 S 上选择 T_low、T_full：
    alpha=clip((S-T_low)/(T_full-T_low),0,1)。
@@ -15,7 +15,7 @@
 
 无 RMS、相关性、形态学、锐化、配准或输出重采样。默认不再使用 Otsu。
 原图不改写；彩色图受窗口截断、LUT 和 RGB8 量化影响，定量分析使用原始 signed 数据。
-详见 [方法](docs/METHODS_zh.md)、[v0.3.0变更](CHANGELOG.md)、[验证](docs/VALIDATION_zh.md)。
+详见 [方法](docs/METHODS_zh.md)、[v0.3.1变更](CHANGELOG.md)、[验证](docs/VALIDATION_zh.md)。
 
 ## Windows 运行
 
@@ -53,7 +53,7 @@ python src/run_sb_batch.py --input-dir data/sb --output runs/sb_first_preview
 输入目录每个晶族只能有一张匹配 `IFFT (hkl) Sb*.tif` 的图。
 顺序为012、104、110、202、024；分别读 configs/sb_*.json。
 颜色：012天蓝、104橙、110紫、202黄、024青；配置中的 RGB 是基色。
-每张独立采用 P0.5/P99.5 显示、P10→max alpha。可以单独运行：
+每张独立采用 P0.5/P99.5 显示、0→max alpha。可以单独运行：
 ```powershell
 python src/pipeline.py --input "data/sb/你的012图.tif" --output runs/sb012 --config configs/sb_012.json
 ```
@@ -114,3 +114,14 @@ python -m pytest -q
 TIFF和独立alpha用于ImageJ/DM交换；ImageJ不一定保留PNG透明度。
 [跨软件说明](docs/ImageJ_DigitalMicrograph_zh.md)与导入宏只读取Python输出，不重新推导边界。
 
+
+## 六层黑底叠加（v0.3.1）
+
+```powershell
+python src/run_combined.py --k3 data/k3.tif --sb-dir data/sb --output runs/all_six
+```
+
+生成各层第一步RGB、RGBA、float32 alpha、黑底PNG与未压缩TIFF，以及Sb五层/全部六层黑底合成。
+合成按各层alpha8加权RGB相加，最后一次四舍五入并截顶到255；不按顺序覆盖。
+重叠可能混色或变白，不是新增相；记录截顶比例。T_low=0保留弱背景，不能解释为自动确定晶界。
+只检查尺寸和标定，不自动配准。
