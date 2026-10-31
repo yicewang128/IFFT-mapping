@@ -1,0 +1,28 @@
+{
+  "sigma_px": 5,
+  "display_window": null,
+  "display_percentiles": [
+    0.5,
+    99.5
+  ],
+  "color_map": "tint_white",
+  "color_rgb": [
+    255,
+    215,
+    0
+  ],
+  "white_start": 0.55,
+  "white_max": 230,
+  "alpha": {
+    "mode": "continuous",
+    "low": {
+      "mode": "percentile",
+      "value": 10
+    },
+    "full": {
+      "mode": "max"
+    }
+  },
+  "tem_opacity": 1,
+  "tem_window": null
+}

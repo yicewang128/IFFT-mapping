@@ -1,3 +1,14 @@
+# Changelog
+
+## 0.3.0 — continuous alpha and separate Sb reflection previews
+
+- Default alpha is a linear ramp from P10 to max of Gaussian(abs(real signed IFFT)); T_full remains configurable and provisional for K3SbS3.
+- Save float32 opacity and alpha8; black/TEM rendering, saved-run replay and GUI use continuous opacity consistently.
+- Preserve v0.2.0 D colors; add tint-to-near-white LUT and five Sb family configurations with separate batch previews.
+- Keep legacy binary configurations, add legacy_v020_D.json, and retain historical filenames for compatibility.
+- Update notebook, ImageJ import guidance, scientific method record and regression tests.
+- No RMS, correlation, morphology, registration, or phase-boundary claim introduced.
+
 # Change log
 
 ## 0.2.0 — 2026-10-30
@@ -17,3 +28,4 @@
 - Added transparent PNG, uncompressed TIFF, black preview and optional TEM composite.
 - Added run provenance, invariant tests, interactive threshold review and ImageJ importer.
 - Physical grain boundaries and phase fractions have not been validated.
+

@@ -1,104 +1,89 @@
-# 处理方法与每一步的理由
+# v0.3.0 方法与参数的含义
 
-## 数据和目标
+## 两条独立处理路径
 
-输入为已经由指定反射重建出的实数signed IFFT，记作F(x,y)。本项目不重新选择FFT反射。
-原始TIFF以字节不变的方式保存在data；处理结果另存。像素坐标原点为左上角，数组顺序(y,x)。
+输入F是实数、有正负值的二维IFFT，不是复数场。本程序不重新选择FFT反射。
+显示路径使用signed F；幅度路径使用abs(F)。原始文件不改写。
+本方法显示“指定傅里叶分量的局部信号”，不自动证明相范围或物理晶界。
 
-本版本要回答的是：按照给定的幅度准则，哪些位置应显示绿色IFFT？
-不据此直接断言这些区域就是完整K3SbS3相范围，或轮廓就是物理晶界。
+## 1. 晶格显示
 
-## 1. Signed灰度显示与D颜色映射（v0.2.0）
+每图独立取F的P0.5、P99.5为a、b：
+L=clip((F-a)/(b-a),0,1)，标量gamma=1。
+显式display_window优先；effective_config保存实际窗口。
+显示保留正负值的大小次序，但两端裁切、LUT及RGB8量化会丢失显示强度细节，
+所以不能声称彩色图保留全部频谱；定量测量使用原始F。
 
-默认显示范围取原始signed IFFT全图的第0.5与99.5百分位，记为low、high。
-L=clip((F-low)/(high-low),0,1)，标量gamma=1。
-显式display_window优先；effective_config保存解析后的low/high以供精确重放。
+D绿色：G=round(255L)，R=B=round(230*clip((L-0.55)/0.45,0,1))。
+v0.3.0通用颜色b_vec=color_rgb/255，最大分量须为1：
+RGB=round(255*L*b_vec + W*(1-b_vec))，
+W=white_max*clip((L-white_start)/(1-white_start),0,1)。
+绿色b_vec=(0,1,0)退化到既有D公式；Sb五色使用同一规则。
+最高颜色接近白色，完整颜色值在manifest中记录。gamma=1指标量，
+不等于分段LUT的感知亮度完全线性。
 
-D颜色：G=round(255L)，R=B=round(230*clip((L-0.55)/(1-0.55),0,1))。
-0.55以下保持纯绿色；更高亮处逐渐接近RGB(230,255,230)。这是分段LUT，
-不能说最终显示亮度完全线性。参数由color_map、white_start、white_max控制。
+这一阶段不计算alpha，也不平滑条纹。零灰度通常显示为中间颜色；
+因此第一步未加alpha时，弱信号背景会带颜色，这是signed显示的预期行为。
+逐图显示窗口不能直接比较不同反射的绝对强度。
 
-这仅改变每个像素的显示，不滤波、不锐化、不移动像素。范围外的正/负灰度都会在显示中截断，
-因此不能声称彩色输出保留全部强度信息或频谱；非线性LUT和截断也可能引入谐波。
-原始signed IFFT完整保留，晶格间距、强度或频谱分析使用原始数据。
-本图D显示窗口约-3833.96至4638.92，全图两端各截断0.5%；选中区域合计约2.45%。
-这提高可见度，不提高空间分辨率。一个图像只用一个全局窗口，不做局部对比度增强。
-逐图百分位范围不能用于跨图绝对亮度比较；同系列可显式固定display_window。
+## 2. 幅度
 
-旧版A仍可用configs/legacy_green.json：L=(F-Fmin)/(Fmax-Fmin)，RGB=(0,round(255L),0)。
+A=abs(F)，必须对原始signed数据操作，不能对已加偏置的L取abs。
+对实数条纹取abs会丢弃符号并可能造成倍频，因此A不用于显示最终晶格。
 
-仅在旧版A中，Fmin/Fmax为全图实际极值，无百分位裁切、直方图均衡或自动对比度增强。
-这保持实数值的大小次序；负值、零、正值仍对应不同亮度。
-零不一定映射到127.5：取决于显示窗口。旧版A本图约96.33/255，D约115.39/255。
-仅未截断的仿射标量变换在浮点精度范围内只改变比例和DC；不能将此结论扩展到D彩色输出。
-归一化float32通道与原始signed IFFT均保存，定量测量使用signed原图。
-manifest报告全图两端及选中区域的截断比例，并记录颜色公式、窗口来源和实际值。
+S=Gaussian(A,sigma=5px,mode=reflect,truncate=4)，float64计算，float32 TIFF导出。
+这是局部加权平均绝对幅度，不是RMS。核半径20px，每轴41个采样点。
+sigma=5必须结合原像素尺寸报告；本次像素0.05192922428250313nm，sigma约0.259646nm。
+平滑核宽度、原FFT mask引起的展宽及实际物理界面宽度不能混为一谈。
 
-## 2. 取原始IFFT绝对值
+## 3. 连续alpha（本次更新）
 
-B=abs(F)。必须对原始signed值操作，不能对已加正偏置的L取绝对值。
+所有百分位均在S的全图像素上计算，包含背景：
+T_low=P10(S)，不是幅度10、不是max*0.1，更不是固定沿用其他图的绝对端点。
+T_full暂时=max(S)，可选Pq(S)或manual绝对值。
+K3SbS3最终T_full尚未决定。若希望最亮5%完全显示，应设q=95。
 
-目的：正、负半周期都对“此处有条纹信号”贡献非负响应。
-代价：符号被丢弃，周期条纹可能出现倍频。因此B只用于区域检测，不作为最终晶格显示。
-此输入是实数灰度，不是包含独立实部/虚部的复数场。
+alpha=clip((S-T_low)/(T_full-T_low),0,1)，alpha gamma=1。
+S<=T_low完全透明，S>=T_full完全不透明，之间线性过渡。
+“完全显示”保留第一步RGB，包括暗条纹；不是把整片区域涂成同一亮色。
+T_full必须大于T_low，常数图或无效端点会报错。
+不添加Otsu、相关性、RMS、形态学、自动填洞或手工修边。
 
-## 3. 高斯平滑
+透明比例是显示设计，不是已证明的无晶格比例。用P10意味着最弱约10%隐藏，
+但弱晶格可能被隐藏，剩余背景也可能有微弱alpha。
+alpha不是晶体存在概率，不是相含量，也不是晶界置信度。
+每个晶族独立归一化不保证不同晶族的alpha能作绝对强度比较。
 
-S=G_sigma * B；sigma=5原始像素；SciPy mode='reflect'，truncate=4。
-有限核半径为20px、每轴41个采样点；float64计算，float32中间TIFF导出。
-它是局部加权平均绝对幅度，不是sqrt(G*(F^2))，因此不称为RMS。
-目的：减少周期内亮暗起伏，让局部信号强弱用于区域选择。
-平滑不施加在第一步绿色IFFT上。区域内用于显示的条纹不被Gaussian平滑。
+## 4. 保存与合成
 
-本图像素尺寸为0.05192922428250313 nm/px，sigma约0.259646 nm。
-Gaussian的FWHM约11.774px，即0.6114nm；这仅是本次平滑核宽度，
-不等于总空间分辨率，更不等于晶界误差。先前FFT mask本身的展宽仍存在。
-离图像外缘20px以内可能受所选reflect边缘延拓影响。
+RGB完全独立于alpha，逐像素与第一步相同，包括隐藏RGB。
+alpha_float32.tif保留[0,1]权重；alpha8=round(255*alpha)与RGBA PNG一致。
+量化会使极低alpha归零、极高alpha归一；manifest分别记录float与PNG端点比例。
+黑底C=alpha8/255 * RGB。
+TEM C=opacity*alpha8/255*RGB+(1-opacity*alpha8/255)*TEM_display。
+合成用相同alpha8，确保透明PNG、黑底和saved-run叠加一致。
+辅助04_selection_mask只记录alpha_float>0，不再是实际透明度。
 
-## 4. 区域选择
+原TEM文件不改写，不锐化、不滤波、不配准。高位深TEM只按显式指定显示窗转为RGB8；
+RGB8结果不能替代原始32-bit数据。
 
-M=1 if S>=T else 0。初始T用4096-bin直方图Otsu得到。
-Otsu最大化两类间方差，不是噪声显著性检验，不保证能选出所有弱晶格。
-默认阈值只是可复现的初始设置：应检查native pixels、阈值敏感性和原始TEM。
-可在GUI调T，或使用manual/percentile配置；最终应记录绝对T。
-本版不填洞、不膨胀、不腐蚀、不删除小区域，不人工补全边界。
-残余条纹或拍频可以令mask边缘带细齿或产生孔洞，本版如实保留以供审核。
-threshold_sensitivity的±20%只是参数扰动示意，不是误差棒或置信区间。
+## Sb分反射处理
 
-## 5. 用mask显示第一步原始绿色条纹
+五张输入来自用户分别提供的{012}、{104}、{110}、{202}、{024} IFFT。
+逐张处理、逐张记录端点，不把五张signed图先相加，从而不额外引入相加抵消。
+但每张若由整个环重建，仍包含该环内方向分量的叠加；本次没有重新分方向。
+颜色只用于区分所选反射，归属采用输入标注，不是本代码独立验证晶相。
+仅校验尺寸、标定和数值，不将同尺寸当作严格共定位证据。
 
-RGBA=(RGB_step1, 255M)。这是二值alpha，不按S的强弱继续减弱域内亮度。
-即使域内某像素在第一步为纯黑，它也保持alpha=255，不能按“黑色=透明”来删除。
-因此本项目另存独立alpha/mask，不依赖ImageJ是否支持PNG透明通道。
-mask以外的隐藏RGB可以非零，但alpha严格为零，标准RGBA查看器不显示它。
+## 文献背景与实现边界
 
-局部区域内的RGB与第一步完全一致；然而加mask后的整幅图的频谱会改变。
-不能用已抠图的整体FFT作为原始衍射数据，也不能说阈值选择完全没有信息损失。
-低于阈值的信号只是在此展示中隐藏，原始IFFT及幅度图仍完整保存。
+Du et al., Nature Communications 16,8342(2025), https://doi.org/10.1038/s41467-025-62451-0
+明确描述每对反射IFFT→实数绝对值→Gaussian sigma5px→三图RGB幅度合成，
+并指出sigma随像素尺寸调整。它支持此幅度提取思路；
+没有据此证明本项目的P10/亮端设置或连续alpha应用回signed条纹是作者原算法。
 
-## 6. 黑底或TEM底图
+Grachev et al., Scientific Visualization 8(5),113–121(2016),
+https://sv-journal.org/2016-5/10/index.php?lang=en ，讨论彩色傅里叶分量显示与滤波展宽。
+Seyring et al., JMR24,342–346(2009), https://doi.org/10.1557/JMR.2009.0071 ，提供局部幅度映射背景。
+本项目没有实现其角度扫描，也不据这些文献声称已验证Sb/K3SbS3物理晶界。
 
-黑底：C_black=M*RGB_step1。
-TEM：C=opacity*M*RGB_step1+(1-opacity*M)*TEM_display。
-
-原TEM文件不改写；无锐化、滤波、背景扣除、配准或尺寸调整。
-8-bit TEM使用原始显示值；16/32-bit必须提供DM/ImageJ显示窗口才能生成RGB显示。
-高位深原始TEM不可能在RGB8合成图中保持其全部数值精度，原文件应独立保留。
-alpha=1的选中区显示纯绿色IFFT，alpha<1是视觉混合，可在config中显式记录。
-
-## 本版与前期RMS方法的区别
-
-旧思路：局部RMS/WRMS可能连续控制透明度。当前流程：abs → Gaussian → 阈值 → 二值透明度。
-当前不使用相关性加权，也没有通过原TEM对mask做自动纠正。
-为忠实于此次要求，不自动加入任何这些附加判断。
-
-## 文献与实现来源
-
-- 当前具体组合是用户指定的探索性流程，不能作为已经在K3SbS3/Sb上验证的算法引用。
-- Grachev et al., Scientific Visualization 8(5), 113–121 (2016): https://sv-journal.org/2016-5/10/index.php?lang=en 。支持彩色频率选择图及滤波展宽讨论，未证明本版Otsu阈值。
-- Seyring et al., J. Mater. Res. 24, 342–346 (2009): https://doi.org/10.1557/JMR.2009.0071 。局部幅度用于纳米晶区域识别的方法背景；本版没有实现其逐角度扫环。
-- SciPy Gaussian定义: https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter.html
-- ImageJ宏函数: https://imagej.net/ij/developer/macro/functions2.html
-
-后续验证可增加：原TEM局部FFT核查、取向一致性、不同mask宽度稳定性。
-这些应作为独立的新版本实现，不悄悄改变v0.1.0。
