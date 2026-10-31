@@ -1,0 +1,53 @@
+{
+  "version": "0.3.2",
+  "sigma_px": 5,
+  "source_shape": [
+    2048,
+    2048
+  ],
+  "comparison": "Exact RGB/RGBA and black pixel equality with confirmed per-layer previews; six original signed IFFTs reprocessed using current presets.",
+  "runs": [
+    {
+      "name": "K3SbS3",
+      "T_low": 0.0,
+      "T_full": 1511.8728714323536,
+      "RGBA_matches_confirmed_preview": true,
+      "source_sha256": "6cf05839c96f0ae3192d2dddabf79abd63fb54ebee3c612e966cc3a49b21c1a4"
+    },
+    {
+      "name": "Sb_012",
+      "T_low": 74.58405598859034,
+      "T_full": 2070.732523112425,
+      "RGBA_matches_confirmed_preview": true,
+      "source_sha256": "6841e7ab24f99baeab8a9bd71b8a2e1b1e4a8585f51650f5cbd8efd088fb4113"
+    },
+    {
+      "name": "Sb_104",
+      "T_low": 19.063665565323753,
+      "T_full": 386.32012293800307,
+      "RGBA_matches_confirmed_preview": true,
+      "source_sha256": "e469c5faae84bf29fdc613fa7c3fefbbc2f0879d46f094d6243454c57c82fdcd"
+    },
+    {
+      "name": "Sb_110",
+      "T_low": 28.222874060073615,
+      "T_full": 392.35607346975576,
+      "RGBA_matches_confirmed_preview": true,
+      "source_sha256": "16fad14d3ea841b62668bbfd5c22997f138ac6046aa52c37958875f261534118"
+    },
+    {
+      "name": "Sb_202",
+      "T_low": 8.104221687175983,
+      "T_full": 208.51313503022376,
+      "RGBA_matches_confirmed_preview": true,
+      "source_sha256": "e974a605211e57af358574d8b32b02d7f8aedc7aec174981a2e67826be3fa124"
+    },
+    {
+      "name": "Sb_024",
+      "T_low": 10.88354134900934,
+      "T_full": 158.20003231652115,
+      "RGBA_matches_confirmed_preview": true,
+      "source_sha256": "b7e3855f333395392915fa8304cf4ba2a9dd60142062df945e64b6f3e5419f80"
+    }
+  ]
+}

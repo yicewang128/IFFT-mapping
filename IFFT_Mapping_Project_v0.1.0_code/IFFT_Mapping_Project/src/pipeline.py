@@ -1,4 +1,4 @@
-"""Version 0.3.1: signed IFFT colors and independent continuous amplitude alpha.
+"""Version 0.3.2: signed IFFT colors and independent continuous amplitude alpha.
 
 No RMS, gamma adjustment, sharpening, morphology, resizing, or registration.
 See docs/METHODS_zh.md for the meaning and limitations of each operation.
@@ -19,7 +19,7 @@ import tifffile
 from PIL import Image
 from scipy.ndimage import gaussian_filter
 
-VERSION = "0.3.1"
+VERSION = "0.3.2"
 
 
 def sha256(path):

@@ -1,8 +1,10 @@
-# IFFT Mapping Project — v0.3.1
+# IFFT Mapping Project — v0.3.2
 
 原始实数 signed IFFT 的彩色晶格显示，与 Gaussian(abs(IFFT)) 控制的透明度分开。
-当前默认改为 **连续 alpha**，暗端为幅度数值 **0**（不是 P0 或 P10），亮端暂用 **max**。
-**各张图最终 T_low/T_full 尚待比较**；max 仅是可重现的预览设置。
+当前确认的默认 **连续 alpha** 参数：
+- K₃SbS₃：T_low 为幅度数值 **0**（不是 P0），T_full=**P80**，即最亮20%完全显示。
+- 五组 Sb：分别从各自的平滑幅度图计算 T_low=**P25**、T_full=**P99.5**，即最亮0.5%完全显示。
+百分位作用于 Gaussian(abs(F))，不是原始 signed 灰度或显示亮度L。
 
 ## 当前流程
 
@@ -15,7 +17,7 @@
 
 无 RMS、相关性、形态学、锐化、配准或输出重采样。默认不再使用 Otsu。
 原图不改写；彩色图受窗口截断、LUT 和 RGB8 量化影响，定量分析使用原始 signed 数据。
-详见 [方法](docs/METHODS_zh.md)、[v0.3.1变更](CHANGELOG.md)、[验证](docs/VALIDATION_zh.md)。
+详见 [方法](docs/METHODS_zh.md)、[v0.3.2变更](CHANGELOG.md)、[验证](docs/VALIDATION_zh.md)。
 
 ## Windows 运行
 
@@ -41,7 +43,7 @@ python src/pipeline.py --input data/input_ifft.tif --output runs/manual_full --a
 ```
 
 “最亮5%完全显示”对应 full percentile=95，而不是5。端点均在 Gaussian(abs(F)) 上计算。
-full=max 与未经平滑的 abs(F).max 不同；默认采用前者。
+可选的 full=max 指平滑幅度S的最大值，与未经平滑的 abs(F).max 不同；当前默认使用上述百分位。
 上述1800仅为命令格式示例，不是推荐参数。
 
 ## Sb 五个反射晶族
@@ -53,7 +55,7 @@ python src/run_sb_batch.py --input-dir data/sb --output runs/sb_first_preview
 输入目录每个晶族只能有一张匹配 `IFFT (hkl) Sb*.tif` 的图。
 顺序为012、104、110、202、024；分别读 configs/sb_*.json。
 颜色：012天蓝、104橙、110紫、202黄、024青；配置中的 RGB 是基色。
-每张独立采用 P0.5/P99.5 显示、0→max alpha。可以单独运行：
+每张独立采用 signed P0.5/P99.5 显示、幅度 P25→P99.5 alpha。可以单独运行：
 ```powershell
 python src/pipeline.py --input "data/sb/你的012图.tif" --output runs/sb012 --config configs/sb_012.json
 ```
@@ -102,7 +104,7 @@ TIFF未压缩、PNG无损编码；独立图均保留原宽高和像素坐标，�
 ## 记录与验证
 
 实验数据与输出不提交GitHub，代码和配置在仓库保存。每次运行写新目录，避免覆盖。
-历史运行文档 RUN_001 / RUN_002 仍描述各自旧版本，不是当前默认。
+历史运行文档 RUN_001 至 RUN_004 描述各自旧版本；当前参数复核见 [RUN_005](docs/RUN_005_zh.md)。
 用 `git pull --ff-only` 更新已有clone，或下载新的GitHub代码ZIP。
 不要在网页上传包含实验图片的完整结果包；网页上传不会遵守.gitignore。
 
@@ -123,5 +125,6 @@ python src/run_combined.py --k3 data/k3.tif --sb-dir data/sb --output runs/all_s
 
 生成各层第一步RGB、RGBA、float32 alpha、黑底PNG与未压缩TIFF，以及Sb五层/全部六层黑底合成。
 合成按各层alpha8加权RGB相加，最后一次四舍五入并截顶到255；不按顺序覆盖。
-重叠可能混色或变白，不是新增相；记录截顶比例。T_low=0保留弱背景，不能解释为自动确定晶界。
+重叠可能混色或变白，不是新增相；记录截顶比例。K3的T_low=0保留弱背景；Sb的P25也不是经验证的晶界判据。
+本次v0.3.2只更新阈值配置，run_combined.py仍采用相加合成；它不等同于另行预览的“先合并Sb，再覆盖matrix”图层合成。
 只检查尺寸和标定，不自动配准。

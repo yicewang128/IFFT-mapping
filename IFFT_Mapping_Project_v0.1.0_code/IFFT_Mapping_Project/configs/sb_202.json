@@ -16,11 +16,12 @@
   "alpha": {
     "mode": "continuous",
     "low": {
-      "mode": "manual",
-      "value": 0.0
+      "mode": "percentile",
+      "value": 25.0
     },
     "full": {
-      "mode": "max"
+      "mode": "percentile",
+      "value": 99.5
     }
   },
   "tem_opacity": 1,

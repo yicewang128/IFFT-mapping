@@ -34,7 +34,7 @@ def comparison_panel(left,right,plane,stats,native=False):
             w,h=im.size;x=(w-side)//2;y=(h-side)//2;im=im.crop((x,y,x+side,y+side))
         else:im=im.resize((side,side),Image.Resampling.BOX)
         panel.paste(im,(16+i*(side+16),80))
-    d.text((16,side+89),f'Sigma=5 px | T_low={stats["low"]:.4f} | T_full=max={stats["full"]:.4f} | scalar gamma=1',font=font(17),fill=(210,215,220))
+    d.text((16,side+89),f'Sigma=5 px | T_low={stats["low"]:.4f} | T_full={stats["full"]:.4f} | scalar gamma=1',font=font(17),fill=(210,215,220))
     return np.array(panel)
 
 
@@ -70,7 +70,7 @@ def run_batch(input_dir,output_dir,config_dir=None):
         save_png(previews/f'Sb_{hkl}_comparison_full.png',comparison_panel(rgb,black,hkl,aa))
         save_png(previews/f'Sb_{hkl}_comparison_native.png',comparison_panel(rgb,black,hkl,aa,True))
         rows.append({'plane':hkl,'color':COLOR_NAMES[hkl],'color_rgb':str(cfg['color_rgb']),
-            'display_low':bounds[0],'display_high':bounds[1],'T_low':aa['low'],'T_full_max':aa['full'],
+            'display_low':bounds[0],'display_high':bounds[1],'T_low':aa['low'],'T_full':aa['full'],
             'mean_alpha':record['statistics']['mean_alpha'],'zero_fraction_float':record['statistics']['transparent_fraction_float'],
             'zero_fraction_PNG8':record['statistics']['transparent_fraction_PNG8'],
             'source_min':record['statistics']['min'],'source_max':record['statistics']['max'],
@@ -80,10 +80,10 @@ def run_batch(input_dir,output_dir,config_dir=None):
     with open(out/'Sb_parameters.csv','w',newline='',encoding='utf-8') as f:
         w=csv.DictWriter(f,fieldnames=rows[0].keys());w.writeheader();w.writerows(rows)
     summary={'pipeline_version':records[0]['project_version'],'planes':list(PLANES),
-        'status':'Separate-family first preview. K3SbS3 final T_full remains undecided.',
+        'status':'Separate-family rendering with configurable endpoints; confirmed presets in v0.3.2.',
         'input_correspondence':'Supplied filenames; matching dimensions/calibration do not prove alignment or phase specificity.',
         'display':'Per-image P0.5/P99.5 of signed IFFT; scalar gamma=1; configured tint LUT; defaults to fixed hue (white_max=0)',
-        'alpha':'Gaussian(abs(real signed IFFT)), sigma5; configured endpoints; defaults to literal zero to its own maximum; continuous linear ramp',
+        'alpha':'Gaussian(abs(real signed IFFT)), sigma5; configured endpoints; each Sb preset defaults to its own P25 to P99.5; continuous linear ramp',
         'comparability':'Separate display and alpha normalizations: cross-plane brightness is not absolute diffraction intensity or phase fraction',
         'signal_note':'No RMS, correlation, Otsu, morphology, spatial filtering of displayed fringes, resizing of standalone images, or registration.',
         'code_sha256':sha256(__file__),'plane_parameters':rows,'runs':records}

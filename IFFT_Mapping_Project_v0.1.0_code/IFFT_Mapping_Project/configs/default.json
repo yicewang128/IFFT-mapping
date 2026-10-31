@@ -15,7 +15,8 @@
       "value": 0.0
     },
     "full": {
-      "mode": "max"
+      "mode": "percentile",
+      "value": 80.0
     }
   },
   "tem_opacity": 1.0,

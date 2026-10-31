@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.2 — confirmed per-material alpha endpoints
+
+- K3SbS3 default: literal T_low=0, T_full=P80 of Gaussian(abs(F)).
+- Five Sb presets: T_low=P25 and T_full=P99.5, computed independently on each image.
+- Preserve fixed hues (white_max=0), signed display P0.5/P99.5, gamma=1, sigma=5px, legacy presets and existing compositing behavior.
+- Update the notebook and method/usage documentation to distinguish display percentiles from opacity percentiles.
+- Remove obsolete max labels from Sb previews; rename the batch CSV column T_full_max to T_full because it stores the resolved endpoint under any mode.
+
 ## 0.3.1 — fixed hue and zero-low preview
 
 - All six presets use white_max=0; signed display window P0.5/P99.5 and gamma=1 remain unchanged.

@@ -1,4 +1,4 @@
-# v0.3.1 方法与参数的含义
+# v0.3.2 方法与参数的含义
 
 ## 两条独立处理路径
 
@@ -39,9 +39,9 @@ sigma=5必须结合原像素尺寸报告；本次像素0.05192922428250313nm，s
 ## 3. 连续alpha（本次更新）
 
 所有百分位均在S的全图像素上计算，包含背景：
-当前默认T_low=0（manual数值零），不是P0，也不是P10；后续可逐图调整。
-T_full暂时=max(S)，可选Pq(S)或manual绝对值。
-各图最终T_low/T_full尚未决定。若希望最亮5%完全显示，应设q=95。
+K₃SbS₃默认T_low=0（manual数值零，不是P0），T_full=P80(S)，即最亮20%完全显示。
+五组Sb分别从自己的S计算T_low=P25(S)、T_full=P99.5(S)，即最亮0.5%完全显示。
+这些是用户确认的显示参数，不是噪声标定或物理晶界判据。可通过配置或CLI覆盖。
 
 alpha=clip((S-T_low)/(T_full-T_low),0,1)，alpha gamma=1。
 S<=T_low完全透明，S>=T_full完全不透明，之间线性过渡。
@@ -80,7 +80,7 @@ RGB8结果不能替代原始32-bit数据。
 Du et al., Nature Communications 16,8342(2025), https://doi.org/10.1038/s41467-025-62451-0
 明确描述每对反射IFFT→实数绝对值→Gaussian sigma5px→三图RGB幅度合成，
 并指出sigma随像素尺寸调整。它支持此幅度提取思路；
-没有据此证明本项目的P10/亮端设置或连续alpha应用回signed条纹是作者原算法。
+没有据此证明本项目的百分位端点设置或连续alpha应用回signed条纹是作者原算法。
 
 Grachev et al., Scientific Visualization 8(5),113–121(2016),
 https://sv-journal.org/2016-5/10/index.php?lang=en ，讨论彩色傅里叶分量显示与滤波展宽。

@@ -1,4 +1,11 @@
-# v0.3.1 验证
+# v0.3.2 验证
+
+16项现有测试通过。六张原始2048×2048实数float32 IFFT使用更新后的配置重新计算显示、abs/Gaussian、连续alpha和单层渲染。
+每张的实际端点、RGBA和黑底像素与已确认的K3 top20 / Sb P25→P99.5预览完全一致；源文件SHA256未改变。
+实际端点和源哈希见 confirmed_endpoints_v032.json；流程见 RUN_005_zh.md。
+本次没有改动叠加算法，也没有重跑Windows、ImageJ或Digital Micrograph原生GUI。
+
+## v0.3.1 验证
 
 16项测试通过。新增合成检查：uint8溢出、透明像素、图层顺序、尺寸拒绝，以及只在累加末尾量化。
 六张真实IFFT运行时逐张检查源文件哈希、PNG解码像素一致性。
