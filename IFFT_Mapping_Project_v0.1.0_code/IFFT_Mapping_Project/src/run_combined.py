@@ -1,4 +1,4 @@
-"""Render six registered IFFTs separately and add their colored layers on black.
+"""Render six corresponding IFFTs; group Sb and place it above the matrix.
 
 No registration is performed; input coordinates must already correspond.
 """
@@ -8,9 +8,9 @@ from pathlib import Path
 import numpy as np
 import tifffile
 from PIL import Image
-from scipy.ndimage import gaussian_filter
-from pipeline import (VERSION, load_image, prepare_ifft_display, choose_alpha,
+from pipeline import (VERSION, load_image, prepare_ifft_display, amplitude_map, choose_alpha,
                       render_layers, save_png, sha256, write_tiff)
+from compositing import group_rgba, source_over_rgba, on_black
 
 
 def add_layers(layers):
@@ -31,7 +31,9 @@ def add_layers(layers):
     return np.rint(np.clip(total, 0, 255)).astype(np.uint8), clipped_fraction
 
 
-def run(k3, sb_dir, output, config_dir=None):
+def run(k3, sb_dir, output, config_dir=None, compositing='sb-over-matrix'):
+    if compositing not in ('sb-over-matrix', 'additive'):
+        raise ValueError('Choose sb-over-matrix or additive compositing')
     out = Path(output)
     if out.exists() and any(out.iterdir()):
         raise FileExistsError('Choose a new or empty output directory')
@@ -54,7 +56,7 @@ def run(k3, sb_dir, output, config_dir=None):
     records=[]; layers=[]
     for name,a,meta,cfg,path in loaded:
         L,bounds,clipped=prepare_ifft_display(a,cfg)
-        S=gaussian_filter(np.abs(a.astype(float)),sigma=cfg['sigma_px'],mode='reflect',truncate=4)
+        _,S=amplitude_map(a,cfg['sigma_px'])
         alpha,endpoints=choose_alpha(S,cfg)
         rgb,rgba,black=render_layers(L,alpha,cfg)
         for suffix,pixels in [('step1',rgb),('transparent',rgba),('black',black)]:
@@ -72,18 +74,39 @@ def run(k3, sb_dir, output, config_dir=None):
         layers.append(rgba)
         print(name,endpoints,flush=True)
     overlays={}
-    for name,selected in [('Sb_all',layers[1:]),('K3SbS3_Sb_all',layers)]:
-        black,clipped=add_layers(selected)
+    if compositing == 'sb-over-matrix':
+        sb_group=group_rgba(layers[1:])
+        merged=source_over_rgba(sb_group,layers[0])
+        composites=[('Sb_all',on_black(sb_group),sb_group,None),
+                    ('K3SbS3_Sb_all',on_black(merged),merged,None)]
+    else:
+        composites=[]
+        for name,selected in [('Sb_all',layers[1:]),('K3SbS3_Sb_all',layers)]:
+            black,clipped=add_layers(selected)
+            composites.append((name,black,None,clipped))
+    for name,black,rgba,clipped in composites:
         save_png(out/f'{name}_black.png',black)
         write_tiff(out/f'{name}_black.tif',black,loaded[0][2].get('calibration'))
-        overlays[name]={'clipped_pixel_fraction':clipped}
+        if rgba is not None:
+            save_png(out/f'{name}_transparent.png',rgba)
+        overlays[name]={'clipped_pixel_fraction':clipped,
+                        'transparent_png':rgba is not None}
     manifest=dict(version=VERSION,runs=records,overlays=overlays,
-        compositing='round(clip(sum(alpha8/255 * RGB),0,255)); only final rounding',
+        compositing=compositing,
+        compositing_rules=({'Sb_color':'sum(alpha_i*RGB_i)/sum(alpha_i); zero at zero total weight',
+                            'Sb_alpha':'1-product(1-alpha_i)',
+                            'layer_order_bottom_to_top':['black','K3SbS3','Sb_group'],
+                            'outer_rule':'ordinary source-over, straight RGBA8 export; black uses exported alpha8',
+                            'numeric_domain':'encoded RGB8 channels, float64 arithmetic; no linear-light conversion'}
+                           if compositing=='sb-over-matrix' else
+                           {'rule':'round(clip(sum(alpha8/255 * RGB),0,255)); only final rounding'}),
         source_code_sha256=sha256(__file__),
+        processing_code_sha256={name:sha256(Path(__file__).with_name(name)) for name in ['pipeline.py','compositing.py']},
         caveats=['No registration; shape/calibration checks do not prove alignment.',
                  'Mixed or white colors indicate overlapping display layers, not a new phase.',
                  'Independent per-image normalization is not an absolute intensity comparison.',
-                 'T_low=0 preserves positive background amplitude. Endpoints remain provisional.'])
+                 'K3 low=0 preserves positive background amplitude; Sb percentile thresholds are display choices, not verified boundaries.',
+                 'Display layering does not establish physical depth or absence of the covered matrix.'])
     (out/'run_manifest.json').write_text(json.dumps(manifest,indent=2))
     return manifest
 
@@ -92,4 +115,5 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--k3',required=True);p.add_argument('--sb-dir',required=True)
     p.add_argument('--output',required=True);p.add_argument('--config-dir')
-    a=p.parse_args();run(a.k3,a.sb_dir,a.output,a.config_dir)
+    p.add_argument('--compositing',choices=['sb-over-matrix','additive'],default='sb-over-matrix')
+    a=p.parse_args();run(a.k3,a.sb_dir,a.output,a.config_dir,a.compositing)

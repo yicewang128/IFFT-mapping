@@ -1,4 +1,14 @@
-# v0.3.2 验证
+# v0.4.0 验证
+
+20项测试通过，包括新增的透明层无贡献、单层保持、Sb排列不变性、union alpha、完全不透明上层遮盖下层、半透明source-over方向和输入尺寸/类型拒绝。
+使用仓库run_combined命令对六张原始2048×2048 float32 IFFT完成真实运行。
+每层alpha8与v0.3.2确认图逐像素相同；matrix的整张RGBA不变；所有原始源SHA256匹配。
+用旧配色图层重放新compositing模块，与先前“Sb在上”预览的组合RGBA/黑底逐像素一致。
+新结果的两张组合透明PNG铺黑底与导出黑底PNG一致；TIFF未压缩、尺寸与标定保留。
+src/preview_combined.py完成图例、整体及两个原生局部新旧配色对照。预览缩小不影响完整输出。
+详细运行记录见RUN_006_zh.md。Windows、ImageJ、DigitalMicrograph原生GUI尚未端到端实测。
+
+## v0.3.2 验证
 
 16项现有测试通过。六张原始2048×2048实数float32 IFFT使用更新后的配置重新计算显示、abs/Gaussian、连续alpha和单层渲染。
 每张的实际端点、RGBA和黑底像素与已确认的K3 top20 / Sb P25→P99.5预览完全一致；源文件SHA256未改变。

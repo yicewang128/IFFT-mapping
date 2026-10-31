@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 — distinct Sb colors and reproducible layered composition
+
+- Keep matrix green; update Sb to royal blue, coral red, violet, bright yellow and rose pink. Configs hold both RGB and color names.
+- Preserve the confirmed K3 0/P80 and per-family Sb P25/P99.5 opacity endpoints, signed display and sigma5 amplitude processing.
+- Add order-independent weighted-color/union-opacity Sb grouping and source-over above the matrix as the default combined mode. Preserve explicit --compositing additive.
+- Export combined transparent layers as well as black PNG/TIFF, and record composition rules and module hashes.
+- Add repository AGENTS.md and a current-state handoff guide, input layout, and compositing regression tests.
+
 ## 0.3.2 — confirmed per-material alpha endpoints
 
 - K3SbS3 default: literal T_low=0, T_full=P80 of Gaussian(abs(F)).

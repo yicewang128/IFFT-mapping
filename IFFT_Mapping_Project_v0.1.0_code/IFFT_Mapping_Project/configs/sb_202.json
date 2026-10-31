@@ -8,8 +8,8 @@
   "color_map": "tint_white",
   "color_rgb": [
     255,
-    215,
-    0
+    230,
+    50
   ],
   "white_start": 0.55,
   "white_max": 0,
@@ -25,5 +25,6 @@
     }
   },
   "tem_opacity": 1,
-  "tem_window": null
+  "tem_window": null,
+  "color_name": "bright yellow"
 }

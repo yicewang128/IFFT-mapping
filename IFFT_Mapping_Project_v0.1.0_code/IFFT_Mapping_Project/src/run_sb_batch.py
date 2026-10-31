@@ -11,7 +11,6 @@ from PIL import Image, ImageDraw, ImageFont
 from pipeline import load_image, run_pipeline, save_png, sha256
 
 PLANES=('012','104','110','202','024')
-COLOR_NAMES={'012':'sky blue','104':'orange','110':'violet','202':'yellow','024':'cyan'}
 
 
 def font(size):
@@ -21,11 +20,11 @@ def font(size):
     return ImageFont.load_default()
 
 
-def comparison_panel(left,right,plane,stats,native=False):
+def comparison_panel(left,right,plane,stats,native=False,color_name="configured color"):
     side=512 if native else 768
     panel=Image.new('RGB',(2*side+48,side+120),(20,22,27))
     d=ImageDraw.Draw(panel)
-    d.text((16,12),f'Sb {{{plane}}} | {COLOR_NAMES[plane]} | '+('native-pixel center crop' if native else 'full field'),font=font(24),fill='white')
+    d.text((16,12),f'Sb {{{plane}}} | {color_name} | '+('native-pixel center crop' if native else 'full field'),font=font(24),fill='white')
     d.text((16,47),'1. Signed IFFT color (no alpha)',font=font(20),fill='white')
     d.text((side+32,47),'2. Continuous alpha on black',font=font(20),fill='white')
     for i,arr in enumerate([left,right]):
@@ -67,9 +66,9 @@ def run_batch(input_dir,output_dir,config_dir=None):
         aa=record['statistics']['alpha_endpoints'];bounds=record['config_effective']['display_window']
         save_png(previews/f'Sb_{hkl}_step1_full.png',rgb)
         save_png(previews/f'Sb_{hkl}_mapping_black_full.png',black)
-        save_png(previews/f'Sb_{hkl}_comparison_full.png',comparison_panel(rgb,black,hkl,aa))
-        save_png(previews/f'Sb_{hkl}_comparison_native.png',comparison_panel(rgb,black,hkl,aa,True))
-        rows.append({'plane':hkl,'color':COLOR_NAMES[hkl],'color_rgb':str(cfg['color_rgb']),
+        save_png(previews/f'Sb_{hkl}_comparison_full.png',comparison_panel(rgb,black,hkl,aa,color_name=cfg.get("color_name",hkl)))
+        save_png(previews/f'Sb_{hkl}_comparison_native.png',comparison_panel(rgb,black,hkl,aa,True,color_name=cfg.get("color_name",hkl)))
+        rows.append({'plane':hkl,'color':cfg.get('color_name',hkl),'color_rgb':str(cfg['color_rgb']),
             'display_low':bounds[0],'display_high':bounds[1],'T_low':aa['low'],'T_full':aa['full'],
             'mean_alpha':record['statistics']['mean_alpha'],'zero_fraction_float':record['statistics']['transparent_fraction_float'],
             'zero_fraction_PNG8':record['statistics']['transparent_fraction_PNG8'],
@@ -80,7 +79,7 @@ def run_batch(input_dir,output_dir,config_dir=None):
     with open(out/'Sb_parameters.csv','w',newline='',encoding='utf-8') as f:
         w=csv.DictWriter(f,fieldnames=rows[0].keys());w.writeheader();w.writerows(rows)
     summary={'pipeline_version':records[0]['project_version'],'planes':list(PLANES),
-        'status':'Separate-family rendering with configurable endpoints; confirmed presets in v0.3.2.',
+        'status':'Separate-family rendering with configurable endpoints; confirmed thresholds and v0.4.0 colors.',
         'input_correspondence':'Supplied filenames; matching dimensions/calibration do not prove alignment or phase specificity.',
         'display':'Per-image P0.5/P99.5 of signed IFFT; scalar gamma=1; configured tint LUT; defaults to fixed hue (white_max=0)',
         'alpha':'Gaussian(abs(real signed IFFT)), sigma5; configured endpoints; each Sb preset defaults to its own P25 to P99.5; continuous linear ramp',

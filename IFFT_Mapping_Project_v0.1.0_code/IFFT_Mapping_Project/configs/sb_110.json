@@ -7,8 +7,8 @@
   ],
   "color_map": "tint_white",
   "color_rgb": [
-    160,
-    75,
+    170,
+    85,
     255
   ],
   "white_start": 0.55,
@@ -25,5 +25,6 @@
     }
   },
   "tem_opacity": 1,
-  "tem_window": null
+  "tem_window": null,
+  "color_name": "violet"
 }
