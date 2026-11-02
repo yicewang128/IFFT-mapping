@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1 — confirmed bright-orange Sb {024}
+
+- Change only Sb {024} base RGB from [255,65,170] to [255,128,0], with color_name bright orange.
+- Preserve every other color, signed display, alpha threshold and layered compositing rule.
+- Rerun all six original IFFTs and deliver eight native-resolution uncompressed RGB8 TIFFs on black: six individuals, grouped Sb, and Sb above the matrix.
+- Record original hashes, calibration, pixel comparisons and the rerun in RUN_007_zh.md.
+
 ## 0.4.0 — distinct Sb colors and reproducible layered composition
 
 - Keep matrix green; update Sb to royal blue, coral red, violet, bright yellow and rose pink. Configs hold both RGB and color names.
@@ -52,4 +59,5 @@
 - Added transparent PNG, uncompressed TIFF, black preview and optional TEM composite.
 - Added run provenance, invariant tests, interactive threshold review and ImageJ importer.
 - Physical grain boundaries and phase fractions have not been validated.
+
 

@@ -1,4 +1,4 @@
-# IFFT Mapping Project — v0.4.0
+# IFFT Mapping Project — v0.4.1
 
 继续修改前请先读 [当前状态与修改入口](docs/CURRENT_STATE_zh.md) 和仓库根目录 AGENTS.md。
 
@@ -19,7 +19,7 @@
 
 无 RMS、相关性、形态学、锐化、配准或输出重采样。默认不再使用 Otsu。
 原图不改写；彩色图受窗口截断、LUT 和 RGB8 量化影响，定量分析使用原始 signed 数据。
-详见 [方法](docs/METHODS_zh.md)、[v0.4.0变更](CHANGELOG.md)、[验证](docs/VALIDATION_zh.md)。
+详见 [方法](docs/METHODS_zh.md)、[v0.4.1变更](CHANGELOG.md)、[验证](docs/VALIDATION_zh.md)。
 
 ## Windows 运行
 
@@ -56,7 +56,7 @@ python src/run_sb_batch.py --input-dir data/sb --output runs/sb_first_preview
 
 输入目录每个晶族只能有一张匹配 `IFFT (hkl) Sb*.tif` 的图。
 顺序为012、104、110、202、024；分别读 configs/sb_*.json。
-颜色：012宝蓝、104珊瑚红、110紫罗兰、202明黄、024玫红；配置中的 RGB 是基色，颜色名称也来自同一配置。
+颜色：012宝蓝、104珊瑚红、110紫罗兰、202明黄、024亮橙；配置中的 RGB 是基色，颜色名称也来自同一配置。
 每张独立采用 signed P0.5/P99.5 显示、幅度 P25→P99.5 alpha。可以单独运行：
 ```powershell
 python src/pipeline.py --input "data/sb/你的012图.tif" --output runs/sb012 --config configs/sb_012.json
@@ -119,7 +119,7 @@ TIFF和独立alpha用于ImageJ/DM交换；ImageJ不一定保留PNG透明度。
 [跨软件说明](docs/ImageJ_DigitalMicrograph_zh.md)与导入宏只读取Python输出，不重新推导边界。
 
 
-## 六层黑底叠加（v0.4.0）
+## 六层黑底叠加（v0.4.1）
 
 ```powershell
 python src/run_combined.py --k3 data/k3.tif --sb-dir data/sb --output runs/all_six
@@ -144,3 +144,4 @@ python src/preview_combined.py --run runs/all_six --output runs/previews
 python src/preview_combined.py --run runs/all_six --output runs/compare --reference runs/previous --crop 768 768 512
 ```
 参考目录使用run_combined的输出文件名。`--crop X Y SIZE`可重复，坐标为从0开始的左上角，局部保留原生像素。
+

@@ -1,0 +1,192 @@
+{
+  "version": "0.4.1",
+  "tests_passed": 20,
+  "source_hashes_match": true,
+  "individual_alpha8_unchanged": true,
+  "group_and_total_alpha8_unchanged": true,
+  "approved_orange_preview_pixel_match": true,
+  "individual_runs": [
+    {
+      "name": "K3SbS3",
+      "input_sha256": "6cf05839c96f0ae3192d2dddabf79abd63fb54ebee3c612e966cc3a49b21c1a4",
+      "alpha_unchanged": true,
+      "unchanged_RGBA_except_024_color": true
+    },
+    {
+      "name": "Sb_012",
+      "input_sha256": "6841e7ab24f99baeab8a9bd71b8a2e1b1e4a8585f51650f5cbd8efd088fb4113",
+      "alpha_unchanged": true,
+      "unchanged_RGBA_except_024_color": true
+    },
+    {
+      "name": "Sb_104",
+      "input_sha256": "e469c5faae84bf29fdc613fa7c3fefbbc2f0879d46f094d6243454c57c82fdcd",
+      "alpha_unchanged": true,
+      "unchanged_RGBA_except_024_color": true
+    },
+    {
+      "name": "Sb_110",
+      "input_sha256": "16fad14d3ea841b62668bbfd5c22997f138ac6046aa52c37958875f261534118",
+      "alpha_unchanged": true,
+      "unchanged_RGBA_except_024_color": true
+    },
+    {
+      "name": "Sb_202",
+      "input_sha256": "e974a605211e57af358574d8b32b02d7f8aedc7aec174981a2e67826be3fa124",
+      "alpha_unchanged": true,
+      "unchanged_RGBA_except_024_color": true
+    },
+    {
+      "name": "Sb_024",
+      "input_sha256": "b7e3855f333395392915fa8304cf4ba2a9dd60142062df945e64b6f3e5419f80",
+      "alpha_unchanged": true,
+      "unchanged_RGBA_except_024_color": true
+    }
+  ],
+  "outputs": [
+    {
+      "filename": "K3SbS3_Sb_all_black_uncompressed.tif",
+      "shape": [
+        2048,
+        2048,
+        3
+      ],
+      "dtype": "uint8",
+      "compression": "NONE (1)",
+      "sha256": "0d353f7bb31f7e0b99843c84a39ea4911cc5d48575ded9279ea364cb0b6f52bc",
+      "size_bytes": 12583328,
+      "calibration": {
+        "pixel_width": 0.05192922428250313,
+        "pixel_height": 0.05192922428250313,
+        "unit": "nm",
+        "source": "Gatan TIFF private calibration tags"
+      }
+    },
+    {
+      "filename": "Sb_all_black_uncompressed.tif",
+      "shape": [
+        2048,
+        2048,
+        3
+      ],
+      "dtype": "uint8",
+      "compression": "NONE (1)",
+      "sha256": "d6ce79d7942cbd3c066babee7211bb0b00ab02d5e0dff05d3a50b789bc6f1053",
+      "size_bytes": 12583328,
+      "calibration": {
+        "pixel_width": 0.05192922428250313,
+        "pixel_height": 0.05192922428250313,
+        "unit": "nm",
+        "source": "Gatan TIFF private calibration tags"
+      }
+    },
+    {
+      "filename": "K3SbS3_black_uncompressed.tif",
+      "shape": [
+        2048,
+        2048,
+        3
+      ],
+      "dtype": "uint8",
+      "compression": "NONE (1)",
+      "sha256": "6ae8a3c507803d72899de743f3d483c55fca28739e4c8ad8b26c1412fc99a2f4",
+      "size_bytes": 12583328,
+      "calibration": {
+        "pixel_width": 0.05192922428250313,
+        "pixel_height": 0.05192922428250313,
+        "unit": "nm",
+        "source": "Gatan TIFF private calibration tags"
+      }
+    },
+    {
+      "filename": "Sb_012_black_uncompressed.tif",
+      "shape": [
+        2048,
+        2048,
+        3
+      ],
+      "dtype": "uint8",
+      "compression": "NONE (1)",
+      "sha256": "1fd2b2da53f4569e1fe5b0bfde3a061276d379a25f233eb4059e97bb32f21116",
+      "size_bytes": 12583328,
+      "calibration": {
+        "pixel_width": 0.05192922428250313,
+        "pixel_height": 0.05192922428250313,
+        "unit": "nm",
+        "source": "Gatan TIFF private calibration tags"
+      }
+    },
+    {
+      "filename": "Sb_104_black_uncompressed.tif",
+      "shape": [
+        2048,
+        2048,
+        3
+      ],
+      "dtype": "uint8",
+      "compression": "NONE (1)",
+      "sha256": "2b2c0a3be0962b1a6cdf3c02fbc0998ff69bd7ccd6b1cff09bea0b824922f22c",
+      "size_bytes": 12583328,
+      "calibration": {
+        "pixel_width": 0.05192922428250313,
+        "pixel_height": 0.05192922428250313,
+        "unit": "nm",
+        "source": "Gatan TIFF private calibration tags"
+      }
+    },
+    {
+      "filename": "Sb_110_black_uncompressed.tif",
+      "shape": [
+        2048,
+        2048,
+        3
+      ],
+      "dtype": "uint8",
+      "compression": "NONE (1)",
+      "sha256": "a143f4375c1a40af18b321d6281b5786dc7c8ca3e17e2c7918c1058903ba0c95",
+      "size_bytes": 12583328,
+      "calibration": {
+        "pixel_width": 0.05192922428250313,
+        "pixel_height": 0.05192922428250313,
+        "unit": "nm",
+        "source": "Gatan TIFF private calibration tags"
+      }
+    },
+    {
+      "filename": "Sb_202_black_uncompressed.tif",
+      "shape": [
+        2048,
+        2048,
+        3
+      ],
+      "dtype": "uint8",
+      "compression": "NONE (1)",
+      "sha256": "9e1208f71e8049a3667a617e55b704ad280bf02c53047e703bc9b7ae972dea9e",
+      "size_bytes": 12583328,
+      "calibration": {
+        "pixel_width": 0.05192922428250313,
+        "pixel_height": 0.05192922428250313,
+        "unit": "nm",
+        "source": "Gatan TIFF private calibration tags"
+      }
+    },
+    {
+      "filename": "Sb_024_black_uncompressed.tif",
+      "shape": [
+        2048,
+        2048,
+        3
+      ],
+      "dtype": "uint8",
+      "compression": "NONE (1)",
+      "sha256": "76267e6993c8abd6499aff259a56cb2f4ef3182121b2a5d7e63b24384a6ae3aa",
+      "size_bytes": 12583328,
+      "calibration": {
+        "pixel_width": 0.05192922428250313,
+        "pixel_height": 0.05192922428250313,
+        "unit": "nm",
+        "source": "Gatan TIFF private calibration tags"
+      }
+    }
+  ]
+}

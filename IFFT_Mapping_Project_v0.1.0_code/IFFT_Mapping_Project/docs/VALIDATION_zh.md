@@ -1,3 +1,10 @@
+# v0.4.1 验证
+
+20项测试通过。六张原始float32 IFFT重新运行，原始SHA256、尺寸和标定一致。
+所有单层及组合alpha8不变；除Sb024颜色外其他五层RGBA不变。新024、Sb组合及总组合逐像素复现已确认亮橙预览。
+全部8张黑底TIFF为2048×2048 RGB8，Compression=NONE，保持原始nm/pixel标定；与对应PNG和RGBA铺黑底一致。
+见 [RUN_007](RUN_007_zh.md) 和 [验证数据](validation_v041.json)。本次未测试原生Windows/ImageJ/DM GUI。
+
 # v0.4.0 验证
 
 20项测试通过，包括新增的透明层无贡献、单层保持、Sb排列不变性、union alpha、完全不透明上层遮盖下层、半透明source-over方向和输入尺寸/类型拒绝。
@@ -56,4 +63,5 @@ Matplotlib预览与保存图像一致性的检查。后者不等于Windows图形
 - 未验证物理晶界、相含量、反射归属、FFT mask是否正确。
 
 程序正确性与物理解释应分别验证。
+
 

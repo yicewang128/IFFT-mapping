@@ -79,7 +79,7 @@ def run_batch(input_dir,output_dir,config_dir=None):
     with open(out/'Sb_parameters.csv','w',newline='',encoding='utf-8') as f:
         w=csv.DictWriter(f,fieldnames=rows[0].keys());w.writeheader();w.writerows(rows)
     summary={'pipeline_version':records[0]['project_version'],'planes':list(PLANES),
-        'status':'Separate-family rendering with configurable endpoints; confirmed thresholds and v0.4.0 colors.',
+        'status':'Separate-family rendering with configurable endpoints; confirmed thresholds and v0.4.1 colors.',
         'input_correspondence':'Supplied filenames; matching dimensions/calibration do not prove alignment or phase specificity.',
         'display':'Per-image P0.5/P99.5 of signed IFFT; scalar gamma=1; configured tint LUT; defaults to fixed hue (white_max=0)',
         'alpha':'Gaussian(abs(real signed IFFT)), sigma5; configured endpoints; each Sb preset defaults to its own P25 to P99.5; continuous linear ramp',
@@ -97,3 +97,4 @@ def main():
 
 
 if __name__=='__main__':main()
+

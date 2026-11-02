@@ -8,8 +8,8 @@
   "color_map": "tint_white",
   "color_rgb": [
     255,
-    65,
-    170
+    128,
+    0
   ],
   "white_start": 0.55,
   "white_max": 0,
@@ -26,5 +26,5 @@
   },
   "tem_opacity": 1,
   "tem_window": null,
-  "color_name": "rose pink"
+  "color_name": "bright orange"
 }
