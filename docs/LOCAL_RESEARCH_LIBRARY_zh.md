@@ -1,4 +1,6 @@
-# 本地 TEM 资料库工具 v1.0.0
+# 本地学术研究资料库工具 v1.1.0
+
+新增文献、教材和科研写作功能见 [学术研究工作流与升级说明](ACADEMIC_RESEARCH_WORKFLOW_zh.md)。本文的 `search --contents` 仍只搜普通文本；PDF全文请使用新增 `text-index` + `find`。
 
 这是独立的文件整理工具；IFFT 显示算法仍为 v0.4.1，参数和颜色没有改变。
 
@@ -6,7 +8,7 @@
 
 - GitHub 私有仓库 yicewang128/IFFT-mapping 可读写。
 - 当前开发环境是云端 Linux，没有用户的 Windows C: 盘连接。
-- 因此尚未验证 `C:\ChatGPT shared research database` 存在、可读或可写。不能以云端测试代替本机验证。
+- 用户于2026-11-03提供本机截图：Windows / Python 3.10.9，`directory_read=true`、`write_read_cleanup_probe=true`，当时目录为空。这是截图报告的本机目录检查成功，不是当前助手远程访问或所有文件读取的证明。
 - 本工具不建立远程连接、不开放网络服务、不自动上传文件。把代码保存到 GitHub 也不会让 ChatGPT 获得本机权限。
 
 ## 最简单的 Windows 使用方法
@@ -76,7 +78,7 @@ py -3 tools\research_library.py --root "C:\ChatGPT shared research database" rea
 PDF正文不在上述全文检索范围内。按页读取 PDF 需要可选依赖：
 
 ```powershell
-py -3 -m pip install pypdf
+py -3 -m pip install -r tools/requirements-library.txt
 py -3 tools\research_library.py --root "C:\ChatGPT shared research database" read "01_Literature/Unreviewed/paper.pdf" --page 3
 ```
 
@@ -94,9 +96,9 @@ py -3 tools\research_library.py --root "C:\ChatGPT shared research database" rea
 ## 验证
 
 ```powershell
-py -3 -m unittest discover -s tools -p "test_research_library.py" -v
+py -3 -m unittest discover -s tools -p "test_research*.py" -v
 ```
 
 测试涵盖空格/中文路径、缺失目录、目录读写、完整哈希、复制保真、同名冲突、重复运行、失败状态、越界路径、链接/reparse point排除、文本检索与PDF依赖缺失。
 Windows/Ubuntu GitHub Actions 使用临时合成文件测试。它们都不是用户电脑C盘的访问测试。
-本次开发记录见 `docs/LOCAL_RESEARCH_LIBRARY_VALIDATION.json`。
+v1.0.0历史开发记录见 `docs/LOCAL_RESEARCH_LIBRARY_VALIDATION.json`；v1.1.0见 `docs/LOCAL_RESEARCH_LIBRARY_VALIDATION_v1.1.0.json`。

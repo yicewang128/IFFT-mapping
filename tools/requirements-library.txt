@@ -1,0 +1,2 @@
+# Optional for PDF indexing/reading; no IFFT dependencies required.
+pypdf==6.10.0

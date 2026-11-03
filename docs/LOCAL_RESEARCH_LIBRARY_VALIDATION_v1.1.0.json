@@ -1,0 +1,41 @@
+{
+  "library_version": "1.1.0",
+  "date": "2026-11-03",
+  "base_commit": "16e941456ef92eebeffa515369644a1180d9fefe",
+  "local_tests": {
+    "library_unittest": {
+      "passed": 31,
+      "failed": 0,
+      "fixture": "synthetic PDF/text/files; no user documents"
+    },
+    "ifft_pytest": {
+      "passed": 20,
+      "failed": 0
+    }
+  },
+  "unchanged_scientific_source_config_files": 15,
+  "ifft_version": "0.4.1",
+  "pdf_dependency": "pypdf==6.10.0",
+  "user_pc_evidence": {
+    "kind": "user supplied screenshot of v1.0.0 check",
+    "platform": "Windows",
+    "python": "3.10.9",
+    "directory_read": true,
+    "write_read_cleanup_probe": true,
+    "top_level_entries": 0,
+    "scope": "screenshot-reported directory probe only; no cloud connection or document read"
+  },
+  "not_verified": [
+    "new 1.1.0 interactive launcher on user PC",
+    "user literature/PDF extraction on real library",
+    "remote access to user PC"
+  ],
+  "hosted_ci": "Windows/Ubuntu, Python 3.10/3.11 configured; inspect commit Actions for actual results",
+  "changes_scope": "academic-library code/docs/menu only; no IFFT pixel operations",
+  "limitations": [
+    "literal text search, no semantic search",
+    "no OCR or automatic paper interpretation",
+    "reading/writing/project outputs are unreviewed templates",
+    "no network service/upload/remote connection"
+  ]
+}

@@ -1,4 +1,4 @@
-# Continue this IFFT project
+# Continue this research library and IFFT project
 
 Read `README.md`, then `IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/docs/CURRENT_STATE_zh.md` before changing the pipeline. The directory name is historical, not the current version.
 
@@ -26,10 +26,20 @@ Read `README.md`, then `IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/do
 
 ## Separate local research-library utility
 
-- `tools/research_library.py` has its own VERSION, currently 1.0.0. It does not import or change the IFFT pipeline.
+- `tools/research_library.py` has its own VERSION, currently 1.1.0. It does not import or change the IFFT pipeline.
 - Read `docs/LOCAL_RESEARCH_LIBRARY_zh.md` before changing directory access, copying, indexing or classification.
-- Run `python -m unittest discover -s tools -p "test_research_library.py" -v` from the repository root for utility changes. Keep source-preservation, duplicate/collision, failed-read and path-boundary tests.
+- Run `python -m unittest discover -s tools -p "test_research*.py" -v` from the repository root for utility changes. Keep source-preservation, duplicate/collision, failed-read and path-boundary tests.
 - Root paths are runtime arguments, not constants in reusable code. Do not read outside the selected root or follow symlinks/junctions.
 - Classification is a filename heuristic, not scientific interpretation. Keep unknowns unclassified and retain original bytes.
 - GitHub access or hosted test success does not prove access to the user's PC. Never claim a connection or full read without actual evidence.
 - Keep local catalogs and source data out of this repository. Changes only to this utility do not require bumping the IFFT pipeline version or rerendering unchanged experimental images; retain the pipeline regression check.
+
+## Academic research workflow (library v1.1.0)
+
+- `tools/research_knowledge.py` handles PDF/TXT/MD extraction, immutable SQLite indexes, source-verified lexical search, reading/writing-analysis cards and project templates.
+- Read `docs/ACADEMIC_RESEARCH_WORKFLOW_zh.md`. The repository is code; the user's research sources are in a separately authorized local directory, never infer access from a path or GitHub permission.
+- Search is literal, not semantic. A no-hit, blank extracted page or failed extraction never establishes absence of evidence. Cite 1-based PDF page sequence separately from printed page numbers and inspect original figures/equations.
+- Preserve extraction errors, source SHA256, per-page statuses, original files and previous indexes. Do not present stale excerpts as current or duplicate copies as independent evidence.
+- Reading/writing/project outputs are templates, not completed research. Separate reported methods, observations and inference. Study argument structure without copying authors' prose or claiming their results as ours.
+- Install `tools/requirements-library.txt` for PDF tests; keep malformed/blank-PDF, changed-source, duplicate-source, source-preservation and Windows tests. Hosted tests are distinct from user-PC verification.
+- Original IFFT pipeline is still v0.4.1. Local-tool validation belongs in new versioned files under docs; never rewrite old validation records.
