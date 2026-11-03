@@ -14,3 +14,12 @@ Coding agents should read [AGENTS.md](AGENTS.md) first. These files describe the
 
 The historical project directory name is retained to preserve paths. Experimental TIFFs and generated results are not stored in this code repository. A repository link provides code and processing context; reproducing experimental figures also requires the six original IFFTs and permission to access them. See the input layout in data/README.md.
 
+## Local research library (separate tool v1.0.0)
+
+Read the [Windows setup and classification guide](docs/LOCAL_RESEARCH_LIBRARY_zh.md).
+Download/extract the repository and open `START_RESEARCH_LIBRARY_WINDOWS.cmd`,
+then enter your existing local library folder. The tool checks access, creates
+folders, indexes file hashes, and copies Inbox files into provisional categories.
+It preserves originals, avoids overwrites, and does not upload files or establish
+remote access. The user's actual PC access must be verified on that PC.
+The IFFT pipeline remains v0.4.1 with unchanged scientific processing.

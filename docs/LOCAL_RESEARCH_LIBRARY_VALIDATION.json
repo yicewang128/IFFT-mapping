@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-03",
+  "utility_version": "1.0.0",
+  "ifft_pipeline_version": "0.4.1",
+  "base_commit": "1ed1e90afebcf8d56fb35b3501c426370f342969",
+  "platform": "Linux",
+  "python": "3.12.14",
+  "local_library_unit_tests": {
+    "passed": 18,
+    "skipped": 0,
+    "command": "python -m unittest discover -s tools -p test_research_library.py -v"
+  },
+  "ifft_regression_tests": {
+    "passed": 20,
+    "command": "python -m pytest -q",
+    "working_directory": "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/"
+  },
+  "ifft_source_and_config_blobs_unchanged": [
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/configs/default.json",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/configs/legacy_green.json",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/configs/legacy_v020_D.json",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/configs/sb_012.json",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/configs/sb_024.json",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/configs/sb_104.json",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/configs/sb_110.json",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/configs/sb_202.json",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/src/compositing.py",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/src/overlay_saved_run.py",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/src/pipeline.py",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/src/preview_combined.py",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/src/review_mask.py",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/src/run_combined.py",
+    "IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/src/run_sb_batch.py"
+  ],
+  "user_windows_directory_access": "NOT VERIFIED: cloud Linux has no connection to user C: drive",
+  "windows_launcher_interactive_run": "NOT RUN on user PC",
+  "github_actions": "Ubuntu and Windows fixture workflow included; see Actions for actual run status",
+  "real_six_image_rerun": "Not run: no complete six-original input set in this environment; IFFT source/config blobs unchanged. No new scientific image outputs claimed.",
+  "network_behavior": "Utility contains no uploads, remote listener or credentials. It is a local tool, not a connection service."
+}

@@ -23,3 +23,13 @@ Read `README.md`, then `IFFT_Mapping_Project_v0.1.0_code/IFFT_Mapping_Project/do
 - Never overwrite original TIFFs or existing output directories. Do not commit experimental inputs or rendered image bundles to this code repository.
 - Keep machine-specific paths out of reusable code. Preserve commands that work from a fresh clone or extracted repository ZIP.
 - Final reports should identify the commit, tests, real-data validation and any remaining limitations. Repository instructions should be sufficient to continue without chat history.
+
+## Separate local research-library utility
+
+- `tools/research_library.py` has its own VERSION, currently 1.0.0. It does not import or change the IFFT pipeline.
+- Read `docs/LOCAL_RESEARCH_LIBRARY_zh.md` before changing directory access, copying, indexing or classification.
+- Run `python -m unittest discover -s tools -p "test_research_library.py" -v` from the repository root for utility changes. Keep source-preservation, duplicate/collision, failed-read and path-boundary tests.
+- Root paths are runtime arguments, not constants in reusable code. Do not read outside the selected root or follow symlinks/junctions.
+- Classification is a filename heuristic, not scientific interpretation. Keep unknowns unclassified and retain original bytes.
+- GitHub access or hosted test success does not prove access to the user's PC. Never claim a connection or full read without actual evidence.
+- Keep local catalogs and source data out of this repository. Changes only to this utility do not require bumping the IFFT pipeline version or rerendering unchanged experimental images; retain the pipeline regression check.

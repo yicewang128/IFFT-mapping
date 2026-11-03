@@ -1,0 +1,27 @@
+name: Local research library tests
+on:
+  push:
+    paths:
+      - 'tools/**'
+      - 'START_RESEARCH_LIBRARY_WINDOWS.cmd'
+      - '.github/workflows/research-library.yml'
+  pull_request:
+    paths:
+      - 'tools/**'
+      - 'START_RESEARCH_LIBRARY_WINDOWS.cmd'
+      - '.github/workflows/research-library.yml'
+permissions:
+  contents: read
+jobs:
+  library:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Filesystem tests with synthetic data
+        run: python -m unittest discover -s tools -p "test_research_library.py" -v

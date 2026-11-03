@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-03 — separate local research-library tool v1.0.0
+
+- Add a root-scoped local utility, Windows menu, provisional Inbox classification by verified byte-preserving copies, SHA256 catalogs and filename/text lookup.
+- Add filesystem tests and Ubuntu/Windows CI for the independent utility.
+- Record that the cloud session has no connection to the user's Windows C: drive; local checks are required.
+- IFFT pipeline version remains 0.4.1. No display, amplitude, alpha, color or compositing changes.
+
 ## 0.4.1 — confirmed bright-orange Sb {024}
 
 - Change only Sb {024} base RGB from [255,65,170] to [255,128,0], with color_name bright orange.

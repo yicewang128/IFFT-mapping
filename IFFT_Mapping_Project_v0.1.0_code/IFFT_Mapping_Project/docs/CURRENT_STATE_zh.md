@@ -80,3 +80,10 @@ Sb目录每个晶族必须恰有一张 `IFFT (012) Sb*.tif` 等匹配文件（10
 
 
 当前配色验证和8张未压缩TIFF重现记录见 [RUN_007](RUN_007_zh.md)。
+
+## 独立本地资料库工具（2026-11-03）
+
+仓库根目录新增 `tools/research_library.py`（工具版本1.0.0）及Windows菜单。
+详见仓库根目录 `docs/LOCAL_RESEARCH_LIBRARY_zh.md`。
+它用于目录访问测试、创建分类、保留原件的分类复制、索引与文本读取，不处理IFFT像素。
+IFFT算法仍为v0.4.1。GitHub连接不代表已经连接用户Windows目录；必须在实际电脑执行检查。
